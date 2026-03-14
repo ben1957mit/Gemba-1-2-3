@@ -1,45 +1,64 @@
 import streamlit as st
+from datetime import date, timedelta
 from utils.auth import require_login
-from utils.branding import add_branding, PRIMARY_YELLOW
 
 require_login()
-add_branding()
 
-st.title("📆 Weekly Gemba Walk Schedule")
+st.title("Weekly Gemba Walk")
 
-st.subheader("Purpose")
-st.write("Review broader operational performance, validate corrective actions, and identify systemic improvement opportunities.")
+# --- Week Selection ---
+week_start = st.date_input("Week Start Date", value=date.today())
+week_end = week_start + timedelta(days=6)
+st.write("**Week Range:**", week_start, "to", week_end)
 
-st.subheader("Weekly Time Block")
-st.write("**Day:** Wednesday")
-st.write("**Time:** 2:00 PM")
-st.write("**Duration:** 45–60 minutes")
-st.write("**Participants:** Warehouse Manager, CI Lead, Safety Officer")
+# --- Personnel ---
+st.subheader("Personnel")
+supervisor = st.text_input("Supervisor Name")
+team_lead = st.text_input("Team Lead Name")
 
-st.subheader("Weekly Focus Themes")
-st.markdown(
-    """
-- **Week 1:** Safety & Compliance  
-- **Week 2:** Inventory Accuracy & Control  
-- **Week 3:** Equipment & Maintenance  
-- **Week 4:** Process Flow & Layout Optimization  
-"""
+# --- Daily Findings ---
+st.subheader("Daily Findings")
+
+days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+daily_notes = {}
+
+for day in days:
+    daily_notes[day] = st.text_area(f"{day} Findings")
+
+# --- Weekly Scoring ---
+st.subheader("Weekly Performance Score")
+
+score = st.slider(
+    "Overall Weekly Score (0 = Poor, 10 = Excellent)",
+    min_value=0,
+    max_value=10,
+    value=7
 )
 
-st.subheader("Weekly Review Items")
-st.markdown(
-    f"<div style='background:{PRIMARY_YELLOW}20; padding:8px; border-radius:4px;'>"
-    "Use this list to guide your weekly review discussion.</div>",
-    unsafe_allow_html=True,
-)
+# --- Top Issues ---
+st.subheader("Top Issues Identified This Week")
+top_issues = st.text_area("List the top issues identified this week")
 
-review_items = [
-    "KPI trends (accuracy, cycle time, dock-to-stock)",
-    "Status of open corrective actions",
-    "6S audit results",
-    "Employee feedback themes",
-    "Waste identification summary",
-]
+# --- Corrective Actions ---
+st.subheader("Corrective Actions")
+corrective_actions = st.text_area("Corrective Actions Taken or Planned")
 
-for item in review_items:
-    st.checkbox(item)
+# --- Completion Button ---
+submitted = st.button("Save Weekly Gemba Walk")
+
+# --- Summary ---
+if submitted:
+    st.success("Weekly Gemba Walk Saved")
+    st.markdown("---")
+    st.subheader("Weekly Summary")
+
+    st.write("**Supervisor:**", supervisor)
+    st.write("**Team Lead:**", team_lead)
+    st.write("**Week:**", week_start, "to", week_end)
+    st.write("**Weekly Score:**", score)
+    st.write("**Top Issues:**", top_issues)
+    st.write("**Corrective Actions:**", corrective_actions)
+
+    st.subheader("Daily Notes")
+    for day in days:
+        st.write(f"**{day}:** {daily_notes[day]}")
